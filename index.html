@@ -1,0 +1,2101 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JGVFriendship Dynamic Multi-Stage Examination Portal</title>
+    <!-- Tailwind CSS Engine -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: ['class', '[data-theme="dark"]'],
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: 'var(--bg-50)',
+                            100: 'var(--bg-100)',
+                            500: 'var(--primary)',
+                            600: 'var(--primary-hover)',
+                            900: 'var(--primary-dark)',
+                        }
+                    },
+                    boxShadow: {
+                        'glow-primary': '0 0 20px -3px rgba(99, 102, 241, 0.45)',
+                        'glow-emerald': '0 0 20px -3px rgba(16, 185, 129, 0.45)',
+                        'glow-rose': '0 0 20px -3px rgba(244, 63, 94, 0.45)',
+                        'advanced-btn': '0 4px 15px -3px rgba(0, 0, 0, 0.15), 0 2px 6px -2px rgba(0, 0, 0, 0.08)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root[data-theme="light"] {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+            --sidebar: #ffffff;
+            --header: #ffffff;
+            --shadow: 0 4px 12px -2px rgb(0 0 0 / 0.06), 0 2px 6px -2px rgb(0 0 0 / 0.04);
+        }
+        :root[data-theme="dark"] {
+            --bg: #0b0f19;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --border: #334155;
+            --primary: #818cf8;
+            --primary-hover: #6366f1;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #818cf8 50%, #4f46e5 100%);
+            --sidebar: #0f172a;
+            --header: #1e293b;
+            --shadow: 0 4px 12px -2px rgb(0 0 0 / 0.4);
+        }
+        :root[data-theme="emerald"] {
+            --bg: #f0fdf4;
+            --card: #ffffff;
+            --text: #064e3b;
+            --muted: #059669;
+            --border: #d1fae5;
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+            --sidebar: #ffffff;
+            --header: #ffffff;
+            --shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.12);
+        }
+        :root[data-theme="sunset"] {
+            --bg: #fff1f2;
+            --card: #ffffff;
+            --text: #881337;
+            --muted: #fb7185;
+            --border: #ffe4e6;
+            --primary: #f43f5e;
+            --primary-hover: #e11d48;
+            --primary-gradient: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%);
+            --sidebar: #ffffff;
+            --header: #ffffff;
+            --shadow: 0 4px 12px -2px rgba(244, 63, 94, 0.12);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .custom-card {
+            background-color: var(--card);
+            border-color: var(--border);
+            box-shadow: var(--shadow);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px -2px rgba(99, 102, 241, 0.5); }
+            50% { box-shadow: 0 0 25px 4px rgba(99, 102, 241, 0.8); }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.35s ease-out forwards;
+        }
+
+        /* Advanced Button Styling Tokens */
+        .btn-adv {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            border-radius: 0.85rem;
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            cursor: pointer;
+            user-select: none;
+        }
+        .btn-adv:active {
+            transform: scale(0.96) !important;
+        }
+        .btn-adv::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: translateX(-100%);
+            pointer-events: none;
+        }
+        .btn-adv:hover::after {
+            animation: shine 1.1s ease-in-out infinite;
+        }
+
+        /* Advanced Primary Button */
+        .btn-adv-primary {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            box-shadow: 0 4px 14px -2px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .btn-adv-primary:hover {
+            box-shadow: 0 6px 20px -2px rgba(99, 102, 241, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+            transform: translateY(-1.5px);
+        }
+
+        /* Advanced Emerald Button */
+        .btn-adv-emerald {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px -2px rgba(16, 185, 129, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .btn-adv-emerald:hover {
+            box-shadow: 0 6px 20px -2px rgba(16, 185, 129, 0.6);
+            transform: translateY(-1.5px);
+        }
+
+        /* Advanced Pulse Button (Login Action) */
+        .btn-adv-pulse {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #818cf8 100%);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: pulseGlow 2.5s infinite;
+        }
+        .btn-adv-pulse:hover {
+            transform: translateY(-1.5px) scale(1.01);
+        }
+
+        /* Advanced Secondary / Ghost Button */
+        .btn-adv-secondary {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 6px -1px rgb(0 0 0 / 0.05);
+        }
+        .btn-adv-secondary:hover {
+            background: var(--border);
+            transform: translateY(-1px);
+        }
+
+        /* Advanced Danger Button */
+        .btn-adv-rose {
+            background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 12px -2px rgba(244, 63, 94, 0.35);
+        }
+        .btn-adv-rose:hover {
+            box-shadow: 0 6px 18px -2px rgba(244, 63, 94, 0.55);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full px-4"></div>
+
+    <div id="customConfirmModal" class="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="custom-card w-full max-w-sm rounded-2xl border p-6 space-y-5 shadow-2xl animate-fade text-center">
+            <div class="text-4xl">⚠️</div>
+            <div class="space-y-1">
+                <h3 id="confirmModalTitle" class="font-bold text-base">Confirmation Required</h3>
+                <p id="confirmModalDesc" class="text-xs text-[var(--muted)]">Are you sure you want to proceed?</p>
+            </div>
+            <div class="flex gap-3 justify-center">
+                <button id="confirmCancelBtn" class="btn-adv btn-adv-secondary px-4 py-2 text-xs flex-1">Cancel</button>
+                <button id="confirmOkBtn" class="btn-adv btn-adv-primary px-4 py-2 text-xs flex-1">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="custom-card w-full max-w-md rounded-2xl border p-8 space-y-6 shadow-2xl animate-fade">
+            <div class="text-center space-y-2">
+                <div class="text-4xl">🔐</div>
+                <h2 id="authModalTitle" class="text-xl font-bold">Advanced Student Portal Login</h2>
+                <p id="authModalSub" class="text-xs text-[var(--muted)]">Strict Policy: Exactly ONE account permitted per Gmail address</p>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider">Username / Student ID</label>
+                    <input type="text" id="loginUsername" required placeholder="e.g. priya_sharma" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition" />
+                </div>
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider">Password</label>
+                        <button type="button" onclick="switchAuthMode('forgot')" class="text-[11px] text-[var(--primary)] hover:underline font-medium cursor-pointer">Forgot Password?</button>
+                    </div>
+                    <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition" />
+                </div>
+                
+                <input type="hidden" id="hiddenClientIp" value="" />
+                <div id="loginErrorMsg" class="text-xs text-rose-500 font-medium text-center hidden"></div>
+
+                <!-- Updated login button name: ( login 🔘)ok -->
+                <button type="submit" class="btn-adv btn-adv-pulse w-full py-3.5 text-xs font-bold tracking-wide">
+                    ( login 🔘)ok
+                </button>
+
+                <div class="text-center pt-2">
+                    <button type="button" onclick="switchAuthMode('register')" class="text-xs text-[var(--primary)] hover:underline font-medium cursor-pointer">
+                        Don't have an account? Register with Gmail →
+                    </button>
+                </div>
+            </form>
+
+            <!-- Registration Form -->
+            <form id="registerForm" onsubmit="handleRegisterSubmit(event)" class="space-y-4 hidden">
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider">Choose Username</label>
+                    <input type="text" id="regUsername" required placeholder="e.g. rahul_verma" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition" />
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider">Gmail Account (Strictly 1 Account per Gmail)</label>
+                    <input type="email" id="regEmail" required placeholder="student@gmail.com" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition" />
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider">Create Password</label>
+                    <input type="password" id="regPassword" required placeholder="••••••••" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition" />
+                </div>
+
+                <div id="regErrorMsg" class="text-xs text-rose-500 font-medium text-center hidden"></div>
+
+                <button type="submit" class="btn-adv btn-adv-emerald w-full py-3 text-xs">
+                    📧 Verify Gmail & Send OTP
+                </button>
+
+                <div class="text-center pt-2">
+                    <button type="button" onclick="switchAuthMode('login')" class="text-xs text-[var(--primary)] hover:underline font-medium cursor-pointer">
+                        Already have an account? Login here →
+                    </button>
+                </div>
+            </form>
+
+            <!-- Reset Password Form -->
+            <form id="forgotForm" onsubmit="handleForgotSubmit(event)" class="space-y-4 hidden">
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider">Verified Gmail Account</label>
+                    <input type="email" id="forgotEmail" required placeholder="student@gmail.com" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition" />
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider">New Password</label>
+                    <input type="password" id="newResetPassword" required placeholder="••••••••" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition" />
+                </div>
+
+                <div id="forgotErrorMsg" class="text-xs text-rose-500 font-medium text-center hidden"></div>
+                <div id="forgotSuccessMsg" class="text-xs text-emerald-500 font-medium text-center hidden"></div>
+
+                <button type="submit" class="btn-adv btn-adv-primary w-full py-3 text-xs">
+                    🔑 Reset Password
+                </button>
+
+                <div class="text-center pt-2">
+                    <button type="button" onclick="switchAuthMode('login')" class="text-xs text-[var(--primary)] hover:underline font-medium cursor-pointer">
+                        Remember password? Back to Login →
+                    </button>
+                </div>
+            </form>
+
+            <!-- Gmail OTP Form -->
+            <div id="otpFormSection" class="space-y-4 hidden">
+                <div class="p-4 bg-[var(--bg)] rounded-xl border border-[var(--border)] text-xs space-y-2 text-[var(--text)] font-mono whitespace-pre-line shadow-inner">
+<span>Hello,
+
+Your 6-digit OTP verification code for JGVFriendship Multi-Stage Examination Portal has been dispatched to your Gmail inbox.
+
+Regards,
+JGVFriendship System</span>
+                </div>
+
+                <div class="space-y-1 font-sans">
+                    <label class="block text-xs font-semibold text-[var(--muted)] uppercase tracking-wider">Enter 6-Digit OTP from Gmail App</label>
+                    <input type="text" id="enteredOtpCode" maxlength="6" required placeholder="123456" class="w-full tracking-widest text-center text-lg bg-[var(--bg)] border border-[var(--border)] rounded-xl px-4 py-2.5 font-bold focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition" />
+                </div>
+
+                <div id="otpErrorMsg" class="text-xs text-rose-500 font-medium text-center hidden font-sans"></div>
+
+                <button type="button" onclick="verifyOtpAndAuthenticate()" class="btn-adv btn-adv-emerald w-full py-3 text-xs font-sans">
+                    ⚡ Verify OTP & Enter Portal
+                </button>
+                <div class="text-center pt-1 flex justify-center items-center text-[11px] text-[var(--muted)] px-1 font-sans">
+                    <button type="button" onclick="resendOtpCode()" class="underline cursor-pointer">Resend OTP code</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="md:hidden flex items-center justify-between p-4 border-b border-[var(--border)] bg-[var(--header)] sticky top-0 z-40">
+        <div class="flex items-center gap-2">
+            <span class="text-xl">🤝📚</span>
+            <span class="font-bold text-lg">JGVFriendship Pro</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="logoutSession()" class="btn-adv btn-adv-rose px-3 py-1.5 text-xs font-medium">Logout</button>
+            <button onclick="toggleMobileSidebar()" class="btn-adv btn-adv-secondary px-3 py-1.5 text-xs font-medium">☰ Menu</button>
+        </div>
+    </div>
+
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden" onclick="toggleMobileSidebar()"></div>
+
+    <aside id="sidebar" class="fixed md:sticky top-0 h-screen w-[290px] bg-[var(--sidebar)] border-r border-[var(--border)] flex flex-col z-50 transition-transform duration-300 -translate-x-full md:translate-x-0 shrink-0">
+        <div class="p-5 border-b border-[var(--border)] flex justify-between items-center">
+            <div>
+                <div class="text-lg font-bold flex items-center gap-2"><span>🤝📚</span> JGVFriendship</div>
+                <div class="text-[11px] text-[var(--muted)] mt-0.5">Dynamic Stage Examination Portal</div>
+            </div>
+            <button class="md:hidden btn-adv btn-adv-secondary text-xs px-2.5 py-1" onclick="toggleMobileSidebar()">✕</button>
+        </div>
+
+        <div class="p-4 flex-1 overflow-y-auto space-y-6">
+            <div class="space-y-1.5">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)] px-3 mb-2">Navigation Modules</div>
+                <a onclick="switchTab('dashboard')" id="nav-dashboard" class="btn-adv btn-adv-primary w-full justify-start px-3.5 py-2.5 text-xs gap-3">
+                    📊 System Dashboard & Stats
+                </a>
+                <a onclick="switchTab('books')" id="nav-books" class="btn-adv btn-adv-secondary w-full justify-start px-3.5 py-2.5 text-xs gap-3">
+                    📖 Automated Library Catalog
+                </a>
+                <a onclick="switchTab('favorites')" id="nav-favorites" class="btn-adv btn-adv-secondary w-full justify-start px-3.5 py-2.5 text-xs gap-3">
+                    💜 Starred Favorites Vault
+                </a>
+                <a onclick="switchTab('mcq')" id="nav-mcq" class="btn-adv btn-adv-secondary w-full justify-start px-3.5 py-2.5 text-xs gap-3">
+                    ✍️ Progressive MCQ Stages
+                </a>
+                <a onclick="switchTab('results')" id="nav-results" class="btn-adv btn-adv-secondary w-full justify-start px-3.5 py-2.5 text-xs gap-3">
+                    🏆 Student Exam Leaderboard
+                </a>
+            </div>
+
+            <!-- Audio Tone Configuration Module -->
+            <div class="pt-2 border-t border-[var(--border)] space-y-2">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)] px-3">Sound & Audio Tone (અવાજ ટોન)</div>
+                <div class="px-2 space-y-2 text-xs">
+                    <div class="flex justify-between items-center bg-[var(--bg)] p-2.5 rounded-xl border border-[var(--border)]">
+                        <span class="font-medium">Audio Tones Active</span>
+                        <input type="checkbox" id="audioToneEnabled" checked class="w-4 h-4 accent-[var(--primary)] cursor-pointer" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[11px] text-[var(--muted)] font-medium">Tone Preset Style</label>
+                        <select id="audioToneStyle" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-xl px-3 py-2 text-xs font-medium focus:outline-none">
+                            <option value="pleasant">🎵 Pleasant Bell (મધુર ઘંટડી)</option>
+                            <option value="arcade">🕹️ Retro Arcade (આર્કેડ સાઉન્ડ)</option>
+                            <option value="chime">🔔 Soft Chime (સોફ્ટ ચાઇમ)</option>
+                            <option value="digital">💻 Digital Beep (ડિજિટલ બીપ)</option>
+                        </select>
+                    </div>
+                    <button type="button" onclick="playAudioToneTest()" class="btn-adv btn-adv-secondary w-full py-2 text-xs">
+                        🔊 Test Sound Tone
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visual Theme Switcher -->
+            <div class="pt-2 border-t border-[var(--border)]">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)] px-3 mb-2">Visual Theme</div>
+                <div class="grid grid-cols-2 gap-2 px-1">
+                    <button onclick="setTheme('light')" class="btn-adv btn-adv-secondary px-3 py-2 text-xs justify-start gap-2">☀️ Light</button>
+                    <button onclick="setTheme('dark')" class="btn-adv btn-adv-secondary px-3 py-2 text-xs justify-start gap-2">🌙 Dark</button>
+                    <button onclick="setTheme('emerald')" class="btn-adv btn-adv-secondary px-3 py-2 text-xs justify-start gap-2">🍃 Emerald</button>
+                    <button onclick="setTheme('sunset')" class="btn-adv btn-adv-secondary px-3 py-2 text-xs justify-start gap-2">🌅 Sunset</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-[var(--border)] text-xs text-[var(--muted)] flex flex-col gap-1.5">
+            <div class="flex justify-between items-center">
+                <span>Status: <strong class="text-emerald-500" id="syncStatusIndicator">Auto Live</strong></span>
+                <button onclick="logoutSession()" class="text-rose-500 font-semibold underline hover:opacity-80 cursor-pointer">Logout</button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        <header class="bg-[var(--header)] border-b border-[var(--border)] px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sticky top-0 z-30 shadow-xs">
+            <div>
+                <h1 id="headerTitle" class="text-xl sm:text-2xl font-bold tracking-tight">Advanced System Dashboard 📊</h1>
+                <p id="headerSubtitle" class="text-xs text-[var(--muted)] mt-0.5">Strict Sequential Unlock (Stage 1: Q1–100 🎉 ➔ Stage 2: Q101–200 🎉 ➔ Stage 3: Q201–300 🔥 ...) • 30s per Question</p>
+            </div>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <div class="relative flex-1 sm:w-64">
+                    <input type="text" id="globalSearch" placeholder="Search books, subjects, questions..." oninput="handleSearch(this.value)" class="w-full bg-[var(--bg)] border border-[var(--border)] rounded-full px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition" />
+                    <span class="absolute right-3 top-2.5 text-xs text-[var(--muted)]">🔍</span>
+                </div>
+                <div id="currentUserBadge" class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full text-xs font-semibold">
+                    👤 <span id="lblCurrentUsername">User</span>
+                </div>
+                <button onclick="loadAllData()" class="btn-adv btn-adv-primary px-4 py-2 text-xs shrink-0">
+                    🔄 Sync Automation
+                </button>
+            </div>
+        </header>
+
+        <div class="p-4 sm:p-8 flex-1 animate-fade">
+            
+            <!-- 1. Dashboard View -->
+            <section id="view-dashboard" class="space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="custom-card p-5 rounded-2xl border flex items-center justify-between">
+                        <div>
+                            <div class="text-xs text-[var(--muted)] font-medium">Library Books</div>
+                            <div id="statTotalBooks" class="text-2xl font-bold mt-1">0</div>
+                            <div class="text-[10px] text-emerald-500 mt-1 font-medium">⚡ Active records</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-xl">📚</div>
+                    </div>
+                    <div class="custom-card p-5 rounded-2xl border flex items-center justify-between">
+                        <div>
+                            <div class="text-xs text-[var(--muted)] font-medium">MCQ Database Pool</div>
+                            <div id="statTotalMcq" class="text-2xl font-bold mt-1">1000</div>
+                            <div class="text-[10px] text-blue-500 mt-1 font-medium">⚡ 30s per Question Rule</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-xl">✍️</div>
+                    </div>
+                    <div class="custom-card p-5 rounded-2xl border flex items-center justify-between">
+                        <div>
+                            <div class="text-xs text-[var(--muted)] font-medium">Favorites Vault</div>
+                            <div id="statTotalFavorites" class="text-2xl font-bold mt-1">0</div>
+                            <div class="text-[10px] text-purple-500 mt-1 font-medium">⚡ Starred items</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-xl">💜</div>
+                    </div>
+                    <div class="custom-card p-5 rounded-2xl border flex items-center justify-between">
+                        <div>
+                            <div class="text-xs text-[var(--muted)] font-medium">Student Exam Logs</div>
+                            <div id="statTotalResults" class="text-2xl font-bold mt-1">0</div>
+                            <div class="text-[10px] text-amber-500 mt-1 font-medium">⚡ Local & Sheets Sync</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-xl">🏆</div>
+                    </div>
+                </div>
+
+                <!-- Active Student Progression Indicator -->
+                <div class="custom-card p-5 rounded-2xl border bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div class="space-y-1">
+                            <div class="text-xs font-bold uppercase tracking-wider text-[var(--primary)] flex items-center gap-2">
+                                <span>🎯 Your Sequential Dynamic Stage Journey</span>
+                            </div>
+                            <div class="text-sm font-bold" id="dashboardStageProgressTitle">
+                                Loading dynamic question stages...
+                            </div>
+                            <p class="text-xs text-[var(--muted)]">Stages scale automatically based on total questions available in the question bank. Complete each stage sequentially to unlock the next stage!</p>
+                        </div>
+                        <button onclick="switchTab('mcq')" class="btn-adv btn-adv-primary px-5 py-2.5 text-xs font-bold shrink-0">
+                            Go to MCQ Stages ➔
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="custom-card p-6 rounded-2xl border lg:col-span-2 flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-semibold text-sm">Books per Category Breakdown</h3>
+                            <span class="text-xs text-[var(--muted)]">Automated Chart</span>
+                        </div>
+                        <div class="relative flex-1 min-h-[280px]">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="custom-card p-6 rounded-2xl border flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-semibold text-sm">Favorites Ratio</h3>
+                            <span class="text-xs text-[var(--muted)]">Proportion</span>
+                        </div>
+                        <div class="relative flex-1 min-h-[280px] flex items-center justify-center">
+                            <canvas id="favoriteChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-card p-6 rounded-2xl border">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-semibold text-sm">Recently Added Materials</h3>
+                        <button onclick="switchTab('books')" class="text-xs font-medium text-[var(--primary)] hover:underline cursor-pointer">View All →</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="border-b border-[var(--border)] text-[var(--muted)] uppercase font-semibold">
+                                <tr>
+                                    <th class="pb-3 px-3">Title</th>
+                                    <th class="pb-3 px-3">Author</th>
+                                    <th class="pb-3 px-3">Category</th>
+                                    <th class="pb-3 px-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentTableBody" class="divide-y divide-[var(--border)]"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Books Catalog View -->
+            <section id="view-books" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+                    <div class="flex gap-2 items-center flex-wrap" id="categoryFilterButtons"></div>
+                </div>
+                <div id="booksGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+            </section>
+
+            <!-- 3. Favorites Vault View -->
+            <section id="view-favorites" class="space-y-6 hidden">
+                <div id="favoritesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+            </section>
+
+            <!-- 4. Dynamic MCQ Exam Portal View -->
+            <section id="view-mcq" class="space-y-6 hidden">
+                <div class="custom-card p-6 rounded-2xl border max-w-4xl mx-auto space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-[var(--border)]">
+                        <div>
+                            <h2 class="font-bold text-lg flex items-center gap-2">
+                                <span>Progressive Sequential MCQ Stages</span>
+                            </h2>
+                            <p class="text-xs text-[var(--muted)]">Rule: Stage 1 (Q1-100) 🎉 ➔ Stage 2 (Q101-200) 🎉 ➔ Stage 3 (Q201-300) 🔥 ... Dynamic Stages for ALL Questions!</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <select id="mcqSubjectSelect" onchange="loadMcqQuestions()" class="bg-[var(--bg)] border border-[var(--border)] rounded-xl px-3 py-2 text-xs font-medium focus:outline-none">
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Stage Selection Setup -->
+                    <div id="mcqStudentSetup" class="space-y-5">
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="block font-semibold text-xs text-[var(--muted)] uppercase tracking-wider">Select Stage (Sequential Unlock Active):</label>
+                                <span class="text-[11px] font-bold text-[var(--primary)]" id="lblTotalStagesSummary">⏱️ Fixed 30s / Question • 100 Qs Per Stage</span>
+                            </div>
+                            <!-- Dynamic Stage Cards Grid -->
+                            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[380px] overflow-y-auto p-1 border border-[var(--border)] rounded-2xl bg-[var(--bg)]/50" id="stageCardsGrid">
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-[var(--bg)] rounded-xl border border-[var(--border)] space-y-3">
+                            <div class="flex justify-between items-center flex-wrap gap-2">
+                                <label class="block font-semibold text-xs">Verify Student Name & Selected Stage:</label>
+                                <span id="selectedStageInfoBadge" class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-bold text-xs">Stage 1 Selected</span>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <input type="text" id="examStudentName" readonly class="flex-1 bg-[var(--card)] border border-[var(--border)] rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none" />
+                                <button id="startExamBtn" onclick="startExamWithTimer()" class="btn-adv btn-adv-emerald px-6 py-2.5 text-xs font-bold">
+                                    🚀 Start Stage Exam
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Timed Examination Section -->
+                    <div id="mcqQuestionsArea" class="hidden space-y-6">
+                        <div class="flex flex-wrap justify-between items-center bg-[var(--bg)] p-3.5 rounded-xl border border-[var(--border)] text-xs font-medium gap-2 shadow-inner">
+                            <span>Student: <strong id="lblExamStudent" class="text-[var(--text)]"></strong></span>
+                            <span>Stage: <strong id="lblExamStage" class="text-[var(--text)]"></strong></span>
+                            <span>Subject: <strong id="lblExamSubject" class="text-[var(--text)]"></strong></span>
+                            <span class="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 font-bold text-sm flex items-center gap-1">⏱️ Time Left: <span id="examTimerDisplay">50:00</span></span>
+                        </div>
+
+                        <!-- Paginated Question Card Container -->
+                        <div id="paginatedQuestionContainer" class="p-6 bg-[var(--bg)] rounded-xl border border-[var(--border)] space-y-4 min-h-[250px]">
+                        </div>
+
+                        <!-- Forward and Backward Navigation Panel -->
+                        <div class="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
+                            <div class="flex items-center gap-2 w-full sm:w-auto">
+                                <button onclick="navigateQuestion(-1)" id="prevQuestionBtn" class="btn-adv btn-adv-secondary px-4 py-2.5 text-xs font-semibold flex-1 sm:flex-initial">
+                                    ← Previous Question
+                                </button>
+                                <button onclick="navigateQuestion(1)" id="nextQuestionBtn" class="btn-adv btn-adv-primary px-4 py-2.5 text-xs font-semibold flex-1 sm:flex-initial">
+                                    Next Question →
+                                </button>
+                            </div>
+                            <div class="text-xs font-medium text-[var(--muted)]">
+                                Question <span id="currentQuestionIndexDisplay" class="font-bold text-[var(--text)]">1</span> of <span id="totalQuestionsCountDisplay" class="font-bold text-[var(--text)]">100</span>
+                            </div>
+                            <button onclick="submitExam(true)" class="btn-adv btn-adv-emerald px-6 py-2.5 text-xs font-semibold w-full sm:w-auto">
+                                ✅ Submit Stage Exam
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Exam Result Screen -->
+                    <div id="mcqResultArea" class="hidden text-center space-y-4 py-8 animate-fade">
+                        <div class="text-5xl" id="resultEmojiHeader">🎉</div>
+                        <h3 class="text-xl font-bold" id="resultTitleHeader">Stage Completed Successfully!</h3>
+                        <p class="text-xs text-[var(--muted)] max-w-lg mx-auto" id="examScoreSummary"></p>
+                        
+                        <div class="p-4 bg-[var(--bg)] rounded-xl border border-[var(--border)] max-w-md mx-auto text-xs space-y-2">
+                            <div class="font-bold text-[var(--primary)]" id="unlockedNextStageBadge">Next Stage Unlocked 🔥</div>
+                            <p class="text-[var(--muted)]" id="unlockedNextStageDesc">You have successfully cleared this stage. The next stage is now available in your portal setup!</p>
+                        </div>
+
+                        <div class="pt-2 flex justify-center gap-3">
+                            <button onclick="resetExamForm()" class="btn-adv btn-adv-primary px-6 py-2.5 text-xs font-bold">
+                                Proceed to Next Stage ➔
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Results Leaderboard View -->
+            <section id="view-results" class="space-y-6 hidden">
+                <div class="custom-card p-6 rounded-2xl border space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="font-bold text-lg">Student Exam Results Leaderboard (Local Storage + Sheets Sync)</h2>
+                            <p class="text-xs text-[var(--muted)]">Persistent storage records across dynamic stages.</p>
+                        </div>
+                        <button onclick="loadResultsData()" class="btn-adv btn-adv-secondary px-3.5 py-2 text-xs font-medium">🔄 Refresh Results</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="border-b border-[var(--border)] text-[var(--muted)] uppercase font-semibold">
+                                <tr>
+                                    <th class="pb-3 px-3">Timestamp</th>
+                                    <th class="pb-3 px-3">Student Name</th>
+                                    <th class="pb-3 px-3">Stage / Subject</th>
+                                    <th class="pb-3 px-3">Score</th>
+                                    <th class="pb-3 px-3">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody" class="divide-y divide-[var(--border)]"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- PDF Document Modal Viewer -->
+    <div id="pdfModal" class="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-6">
+        <div class="custom-card w-full max-w-5xl h-[90vh] rounded-2xl border flex flex-col overflow-hidden shadow-2xl">
+            <div class="px-5 py-3.5 border-b border-[var(--border)] flex justify-between items-center bg-[var(--header)] shrink-0">
+                <div class="font-semibold text-sm truncate max-w-[65%]" id="modalBookTitle">Document Viewer</div>
+                <div class="flex items-center gap-2">
+                    <a id="modalExternalLink" href="#" target="_blank" class="btn-adv btn-adv-primary px-3.5 py-1.5 text-xs font-medium">Open New Tab ↗</a>
+                    <button onclick="closePdfModal()" class="btn-adv btn-adv-rose px-3.5 py-1.5 text-xs font-medium">Close ✕</button>
+                </div>
+            </div>
+            <div class="flex-1 bg-neutral-900 flex items-center justify-center relative overflow-hidden" id="modalContainer">
+                <div id="pdfViewerWrapper" class="w-full h-full flex flex-col"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbzk0B7ATEWKu_T-vHyj-2agONJRg7ttGsPVwIA8-LqZTwcZ9b-0KWa6266t82gDv6SGiw/exec";
+
+        let libraryBooks = [];
+        let examQuestions = [];
+        let examResults = JSON.parse(localStorage.getItem('jgv_local_results') || "[]");
+        let availableSubjects = [];
+        let currentCategoryFilter = '';
+        let currentSearchQuery = '';
+        let categoryChartInstance = null;
+        let favoriteChartInstance = null;
+        
+        let currentStudentAnswers = {};
+        let selectedStage = 1;
+        let activeQuestionIndex = 0;
+        
+        let clientIpAddress = "hidden_ip_secure_token";
+        let activeSessionUser = localStorage.getItem('jgv_active_user') || null;
+        
+        let pendingAuthData = null;
+        let generatedOtpCode = "488554";
+        let examTimerInterval = null;
+        let examTimeRemainingSeconds = 3000;
+
+        // Custom Toast Notification System (Replaces native alert)
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `p-3.5 rounded-xl border text-xs font-medium shadow-lg backdrop-blur-md flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto ${
+                type === 'error' ? 'bg-rose-500/90 text-white border-rose-600' :
+                type === 'success' ? 'bg-emerald-500/90 text-white border-emerald-600' :
+                'bg-[var(--card)] text-[var(--text)] border-[var(--border)]'
+            }`;
+
+            const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            toast.innerHTML = `<span>${icon}</span><span class="flex-1">${message}</span>`;
+
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Custom Confirmation Dialog (Replaces native confirm)
+        function showCustomConfirm(title, message, onConfirm) {
+            const modal = document.getElementById('customConfirmModal');
+            const titleEl = document.getElementById('confirmModalTitle');
+            const descEl = document.getElementById('confirmModalDesc');
+            const okBtn = document.getElementById('confirmOkBtn');
+            const cancelBtn = document.getElementById('confirmCancelBtn');
+
+            if (!modal) {
+                if (window.confirm(message)) onConfirm();
+                return;
+            }
+
+            titleEl.textContent = title;
+            descEl.textContent = message;
+
+            modal.classList.remove('hidden');
+
+            const handleOk = () => {
+                cleanup();
+                onConfirm();
+            };
+
+            const handleCancel = () => {
+                cleanup();
+            };
+
+            const cleanup = () => {
+                modal.classList.add('hidden');
+                okBtn.removeEventListener('click', handleOk);
+                cancelBtn.removeEventListener('click', handleCancel);
+            };
+
+            okBtn.addEventListener('click', handleOk);
+            cancelBtn.addEventListener('click', handleCancel);
+        }
+
+        // Progressive Stage Storage Helpers
+        function getCompletedStagesKey() {
+            const user = activeSessionUser || 'guest';
+            return `jgv_completed_stages_${user}`;
+        }
+
+        function getCompletedStages() {
+            const data = localStorage.getItem(getCompletedStagesKey());
+            return data ? JSON.parse(data) : [];
+        }
+
+        function markStageCompleted(stageNum) {
+            let completed = getCompletedStages();
+            if (!completed.includes(stageNum)) {
+                completed.push(stageNum);
+                localStorage.setItem(getCompletedStagesKey(), JSON.stringify(completed));
+            }
+        }
+
+        function getTotalStages() {
+            const totalQuestions = examQuestions.length || 1000;
+            return Math.max(1, Math.ceil(totalQuestions / 100));
+        }
+
+        function getHighestUnlockedStage() {
+            const completed = getCompletedStages();
+            const totalStages = getTotalStages();
+            if (completed.length === 0) return 1;
+            const maxCompleted = Math.max(...completed);
+            return Math.min(maxCompleted + 1, totalStages);
+        }
+
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    audioCtx = new AudioContext();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playAudioTone(type) {
+            const enabledCheckbox = document.getElementById('audioToneEnabled');
+            if (enabledCheckbox && !enabledCheckbox.checked) return;
+
+            const styleSelect = document.getElementById('audioToneStyle');
+            const style = styleSelect ? styleSelect.value : 'pleasant';
+
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (style === 'pleasant') {
+                    if (type === 'correct') {
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(523.25, now);
+                        osc.frequency.setValueAtTime(659.25, now + 0.1);
+                        osc.frequency.setValueAtTime(783.99, now + 0.2);
+                        gain.gain.setValueAtTime(0.15, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                        osc.start(now);
+                        osc.stop(now + 0.5);
+                    } else if (type === 'incorrect') {
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(220, now);
+                        osc.frequency.setValueAtTime(185, now + 0.15);
+                        gain.gain.setValueAtTime(0.15, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                        osc.start(now);
+                        osc.stop(now + 0.4);
+                    } else {
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(440, now);
+                        gain.gain.setValueAtTime(0.1, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                        osc.start(now);
+                        osc.stop(now + 0.2);
+                    }
+                } else if (style === 'arcade') {
+                    if (type === 'correct') {
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(440, now);
+                        osc.frequency.setValueAtTime(880, now + 0.1);
+                        gain.gain.setValueAtTime(0.1, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                        osc.start(now);
+                        osc.stop(now + 0.3);
+                    } else if (type === 'incorrect') {
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(150, now);
+                        osc.frequency.setValueAtTime(100, now + 0.15);
+                        gain.gain.setValueAtTime(0.12, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                        osc.start(now);
+                        osc.stop(now + 0.3);
+                    } else {
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(300, now);
+                        gain.gain.setValueAtTime(0.08, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                        osc.start(now);
+                        osc.stop(now + 0.15);
+                    }
+                } else if (style === 'chime') {
+                    if (type === 'correct') {
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(587.33, now);
+                        osc.frequency.setValueAtTime(880, now + 0.12);
+                        gain.gain.setValueAtTime(0.18, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                        osc.start(now);
+                        osc.stop(now + 0.6);
+                    } else if (type === 'incorrect') {
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(246.94, now);
+                        osc.frequency.setValueAtTime(220, now + 0.15);
+                        gain.gain.setValueAtTime(0.18, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                        osc.start(now);
+                        osc.stop(now + 0.5);
+                    } else {
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(500, now);
+                        gain.gain.setValueAtTime(0.1, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                        osc.start(now);
+                        osc.stop(now + 0.2);
+                    }
+                } else {
+                    if (type === 'correct') {
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(750, now);
+                        gain.gain.setValueAtTime(0.1, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                        osc.start(now);
+                        osc.stop(now + 0.2);
+                    } else if (type === 'incorrect') {
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(200, now);
+                        gain.gain.setValueAtTime(0.1, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                        osc.start(now);
+                        osc.stop(now + 0.25);
+                    } else {
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(400, now);
+                        gain.gain.setValueAtTime(0.08, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                        osc.start(now);
+                        osc.stop(now + 0.1);
+                    }
+                }
+            } catch (e) {
+                console.log("Audio Tone playback exception:", e);
+            }
+        }
+
+        function playAudioToneTest() {
+            playAudioTone('correct');
+            showToast("Playing test audio tone preset!", "success");
+        }
+
+        fetch('https://api.ipify.org?format=json')
+            .then(res => res.json())
+            .then(data => {
+                clientIpAddress = "ip_hash_" + btoa(data.ip).substring(0, 10);
+                const hiddenIpEl = document.getElementById('hiddenClientIp');
+                if (hiddenIpEl) hiddenIpEl.value = clientIpAddress;
+            })
+            .catch(() => {
+                clientIpAddress = "ip_hash_local_" + Math.floor(Math.random() * 90000 + 10000);
+                const hiddenIpEl = document.getElementById('hiddenClientIp');
+                if (hiddenIpEl) hiddenIpEl.value = clientIpAddress;
+            });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (activeSessionUser) {
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('lblCurrentUsername').textContent = activeSessionUser;
+                const examNameInput = document.getElementById('examStudentName');
+                if (examNameInput) examNameInput.value = activeSessionUser;
+            } else {
+                document.getElementById('loginModal').classList.remove('hidden');
+            }
+            loadAllData();
+        });
+
+        function getStageConfig(stageNum) {
+            const totalQuestions = examQuestions.length || 1000;
+            const startQ = (stageNum - 1) * 100 + 1;
+            const endQ = Math.min(stageNum * 100, totalQuestions);
+            const questionCount = Math.max(0, endQ - startQ + 1);
+            const durationSeconds = questionCount * 30; // 30 seconds per question
+            const durationMins = Math.floor(durationSeconds / 60);
+            return { questionCount, durationSeconds, durationMins, startQ, endQ, totalQuestions };
+        }
+
+        function renderStageCards() {
+            const grid = document.getElementById('stageCardsGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const completedStages = getCompletedStages();
+            const totalStages = getTotalStages();
+            const highestUnlocked = getHighestUnlockedStage();
+
+            const titleBanner = document.getElementById('dashboardStageProgressTitle');
+            if (titleBanner) {
+                let progressString = "";
+                for (let i = 1; i < highestUnlocked; i++) {
+                    const c = getStageConfig(i);
+                    progressString += `Stage ${i} (Q${c.startQ}–${c.endQ}) finished 🎉 ➔ `;
+                }
+                if (highestUnlocked <= totalStages) {
+                    const conf = getStageConfig(highestUnlocked);
+                    progressString += `Stage ${highestUnlocked} (Q${conf.startQ}–${conf.endQ}) 🔥 Ready (Total: ${totalStages} Stages Available)`;
+                } else {
+                    progressString += `All ${totalStages} Stages Completed! 🏆`;
+                }
+                titleBanner.textContent = progressString;
+            }
+
+            const totalSummaryLabel = document.getElementById('lblTotalStagesSummary');
+            if (totalSummaryLabel) {
+                totalSummaryLabel.textContent = `⏱️ Fixed 30s / Q • ${totalStages} Dynamic Stages Available (${examQuestions.length || 1000} Qs Pool)`;
+            }
+
+            if (selectedStage > totalStages) {
+                selectedStage = totalStages;
+            }
+
+            for (let s = 1; s <= totalStages; s++) {
+                const config = getStageConfig(s);
+                const isCompleted = completedStages.includes(s);
+                const isUnlocked = s <= highestUnlocked;
+                const isSelected = (selectedStage === s);
+
+                const card = document.createElement('div');
+                card.id = `stageCard_${s}`;
+                
+                let borderStyle = 'border-[var(--border)] bg-[var(--card)]';
+                let statusBadge = '';
+
+                if (isCompleted) {
+                    borderStyle = 'border-emerald-500 bg-emerald-500/10';
+                    statusBadge = `<div class="text-[10px] font-bold text-emerald-600 mt-1">Stage ${s} finished 🎉</div>`;
+                } else if (s === highestUnlocked) {
+                    borderStyle = 'border-amber-500 bg-amber-500/10 shadow-sm';
+                    statusBadge = `<div class="text-[10px] font-bold text-amber-600 mt-1">Stage ${s} Active 🔥</div>`;
+                } else {
+                    borderStyle = 'border-[var(--border)] bg-[var(--bg)] opacity-60';
+                    statusBadge = `<div class="text-[10px] font-medium text-[var(--muted)] mt-1">🔒 Stage ${s-1} Required</div>`;
+                }
+
+                if (isSelected) {
+                    borderStyle += ' ring-2 ring-[var(--primary)]';
+                }
+
+                card.className = `p-3 rounded-xl border-2 transition space-y-1 text-center ${borderStyle} ${isUnlocked ? 'cursor-pointer hover:scale-102' : 'cursor-not-allowed'}`;
+                
+                card.onclick = () => {
+                    if (!isUnlocked) {
+                        playAudioTone('incorrect');
+                        showToast(`🔒 Stage ${s} is locked! Complete Stage ${s-1} first.`, 'error');
+                        return;
+                    }
+                    selectedStage = s;
+                    playAudioTone('click');
+                    renderStageCards();
+                    const badge = document.getElementById('selectedStageInfoBadge');
+                    if (badge) badge.textContent = `Stage ${s} Selected (Q${config.startQ}–${config.endQ} • ${config.questionCount} Qs • ${config.durationMins} Mins)`;
+                };
+
+                card.innerHTML = `
+                    <div class="text-[11px] font-bold uppercase tracking-wider ${isSelected ? 'text-[var(--primary)]' : 'text-[var(--muted)]'}">Stage ${s}</div>
+                    <div class="text-xs font-bold">Qs ${config.startQ}–${config.endQ}</div>
+                    <div class="text-[10px] text-[var(--muted)]">⏱️ ${config.durationMins} Mins (30s/Q)</div>
+                    ${statusBadge}
+                `;
+                grid.appendChild(card);
+            }
+
+            const badge = document.getElementById('selectedStageInfoBadge');
+            if (badge) {
+                const conf = getStageConfig(selectedStage);
+                badge.textContent = `Stage ${selectedStage} Selected (Q${conf.startQ}–${conf.endQ} • ${conf.questionCount} Qs • ${conf.durationMins} Mins)`;
+            }
+        }
+
+        function switchAuthMode(mode) {
+            playAudioTone('click');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const forgotForm = document.getElementById('forgotForm');
+            const otpSection = document.getElementById('otpFormSection');
+            const titleEl = document.getElementById('authModalTitle');
+            const subEl = document.getElementById('authModalSub');
+
+            loginForm.classList.add('hidden');
+            registerForm.classList.add('hidden');
+            forgotForm.classList.add('hidden');
+            otpSection.classList.add('hidden');
+
+            if (mode === 'register') {
+                registerForm.classList.remove('hidden');
+                titleEl.textContent = "Student Account Registration";
+                subEl.textContent = "Strict Policy: Exactly ONE account permitted per Gmail address";
+            } else if (mode === 'forgot') {
+                forgotForm.classList.remove('hidden');
+                titleEl.textContent = "Reset Password";
+                subEl.textContent = "Enter your verified Gmail account and new password";
+            } else {
+                loginForm.classList.remove('hidden');
+                titleEl.textContent = "Advanced Student Portal Login";
+                subEl.textContent = "Strict Policy: Exactly ONE account permitted per Gmail address";
+            }
+        }
+
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            playAudioTone('click');
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const errorEl = document.getElementById('loginErrorMsg');
+
+            if (!username || !password) {
+                errorEl.textContent = "Please enter both username and password.";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            const existingActiveIP = localStorage.getItem('jgv_ip_' + clientIpAddress);
+            if (existingActiveIP && existingActiveIP !== username) {
+                errorEl.textContent = `Security Restriction: This IP terminal is currently bound to '${existingActiveIP}'. Only one session per IP is permitted!`;
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            let registeredUsers = JSON.parse(localStorage.getItem('jgv_registered_users') || "{}");
+            if (!registeredUsers[username]) {
+                errorEl.textContent = "Account not found. Please register first with your Gmail address.";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            if (registeredUsers[username].password !== password) {
+                errorEl.textContent = "Incorrect password. Please try again.";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            const email = registeredUsers[username]?.email || (username + "@gmail.com");
+            pendingAuthData = { username, email, type: 'login' };
+
+            if (registeredUsers[username].isVerified) {
+                completeUserAuthentication(username);
+            } else {
+                triggerGmailOtp(email);
+            }
+        }
+
+        function handleRegisterSubmit(e) {
+            e.preventDefault();
+            playAudioTone('click');
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
+            const password = document.getElementById('regPassword').value.trim();
+            const errorEl = document.getElementById('regErrorMsg');
+
+            if (!username || !email || !password) {
+                errorEl.textContent = "All fields are required.";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            if (!email.endsWith('@gmail.com')) {
+                errorEl.textContent = "Error: Only valid @gmail.com accounts are accepted.";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            let registeredUsers = JSON.parse(localStorage.getItem('jgv_registered_users') || "{}");
+
+            for (const key in registeredUsers) {
+                if (registeredUsers[key].email.toLowerCase() === email) {
+                    errorEl.textContent = `Registration Rejected: Gmail '${email}' already registered to user '${key}'. Only one account per Gmail allowed!`;
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            if (registeredUsers[username]) {
+                errorEl.textContent = "Username already exists. Please choose a different username.";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            registeredUsers[username] = { username, email, password, isVerified: false };
+            localStorage.setItem('jgv_registered_users', JSON.stringify(registeredUsers));
+
+            pendingAuthData = { username, email, type: 'register' };
+            triggerGmailOtp(email);
+        }
+
+        function handleForgotSubmit(e) {
+            e.preventDefault();
+            playAudioTone('click');
+            const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+            const newPassword = document.getElementById('newResetPassword').value.trim();
+            const errorEl = document.getElementById('forgotErrorMsg');
+            const successEl = document.getElementById('forgotSuccessMsg');
+
+            let registeredUsers = JSON.parse(localStorage.getItem('jgv_registered_users') || "{}");
+            let foundUserKey = null;
+            for (const key in registeredUsers) {
+                if (registeredUsers[key].email.toLowerCase() === email) {
+                    foundUserKey = key;
+                    break;
+                }
+            }
+
+            if (!foundUserKey) {
+                errorEl.textContent = "No account found with this Gmail address.";
+                errorEl.classList.remove('hidden');
+                successEl.classList.add('hidden');
+                return;
+            }
+
+            registeredUsers[foundUserKey].password = newPassword;
+            localStorage.setItem('jgv_registered_users', JSON.stringify(registeredUsers));
+
+            successEl.textContent = "Password successfully reset! Redirecting to login...";
+            successEl.classList.remove('hidden');
+            errorEl.classList.add('hidden');
+
+            setTimeout(() => {
+                switchAuthMode('login');
+            }, 2000);
+        }
+
+        function triggerGmailOtp(email) {
+            generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('forgotForm').classList.add('hidden');
+            document.getElementById('otpFormSection').classList.remove('hidden');
+            document.getElementById('authModalTitle').textContent = "Gmail Account Verification & OTP";
+            document.getElementById('authModalSub').textContent = `Enter verification code dispatched via Gmail to ${email}`;
+
+            showToast("OTP Code dispatched to " + email, "success");
+            fetch(`${API_URL}?action=sendOtp&email=${encodeURIComponent(email)}&otp=${generatedOtpCode}`).catch(err => console.log(err));
+        }
+
+        function resendOtpCode() {
+            playAudioTone('click');
+            if (pendingAuthData && pendingAuthData.email) {
+                triggerGmailOtp(pendingAuthData.email);
+            }
+        }
+
+        function completeUserAuthentication(username) {
+            playAudioTone('correct');
+            localStorage.setItem('jgv_active_user', username);
+            localStorage.setItem('jgv_ip_' + clientIpAddress, username);
+            activeSessionUser = username;
+
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('lblCurrentUsername').textContent = username;
+            const examNameInput = document.getElementById('examStudentName');
+            if (examNameInput) examNameInput.value = username;
+
+            selectedStage = Math.min(getTotalStages(), getHighestUnlockedStage());
+            renderStageCards();
+            showToast(`Welcome, ${username}! Authenticated successfully.`, "success");
+        }
+
+        function verifyOtpAndAuthenticate() {
+            const entered = document.getElementById('enteredOtpCode').value.trim();
+            const errorEl = document.getElementById('otpErrorMsg');
+
+            if (entered !== generatedOtpCode) {
+                playAudioTone('incorrect');
+                errorEl.textContent = "Invalid OTP code. Please check your Gmail message.";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            const username = pendingAuthData ? pendingAuthData.username : "student_user";
+
+            let registeredUsers = JSON.parse(localStorage.getItem('jgv_registered_users') || "{}");
+            if (registeredUsers[username]) {
+                registeredUsers[username].isVerified = true;
+                localStorage.setItem('jgv_registered_users', JSON.stringify(registeredUsers));
+            }
+
+            completeUserAuthentication(username);
+        }
+
+        function logoutSession() {
+            playAudioTone('click');
+            showCustomConfirm("Logout Confirmation", "Are you sure you want to log out of your session?", () => {
+                localStorage.removeItem('jgv_active_user');
+                localStorage.removeItem('jgv_ip_' + clientIpAddress);
+                activeSessionUser = null;
+                window.location.reload();
+            });
+        }
+
+        function setTheme(themeName) {
+            playAudioTone('click');
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('jgv_theme', themeName);
+            updateChartsTheme();
+            showToast(`Theme switched to ${themeName.toUpperCase()}`, "info");
+        }
+
+        const savedTheme = localStorage.getItem('jgv_theme') || 'light';
+        setTheme(savedTheme);
+
+        function toggleMobileSidebar() {
+            playAudioTone('click');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function switchTab(tabId) {
+            playAudioTone('click');
+            ['dashboard', 'books', 'favorites', 'mcq', 'results'].forEach(id => {
+                const el = document.getElementById('view-' + id);
+                if (el) el.classList.add('hidden');
+                const nav = document.getElementById('nav-' + id);
+                if (nav) {
+                    nav.className = "btn-adv btn-adv-secondary w-full justify-start px-3.5 py-2.5 text-xs gap-3";
+                }
+            });
+
+            const targetEl = document.getElementById('view-' + tabId);
+            if (targetEl) targetEl.classList.remove('hidden');
+            
+            const targetNav = document.getElementById('nav-' + tabId);
+            if (targetNav) {
+                targetNav.className = "btn-adv btn-adv-primary w-full justify-start px-3.5 py-2.5 text-xs gap-3";
+            }
+
+            if (window.innerWidth < 768) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                if (!sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
+                }
+            }
+
+            if (tabId === 'dashboard') {
+                document.getElementById('headerTitle').textContent = 'Advanced System Dashboard 📊';
+                document.getElementById('headerSubtitle').textContent = 'Strict Sequential Unlock (Stage 1: Q1–100 🎉 ➔ Stage 2: Q101–200 🎉 ...) • 30s per Question';
+            } else if (tabId === 'books') {
+                document.getElementById('headerTitle').textContent = 'Automated Library Catalog 📖';
+                document.getElementById('headerSubtitle').textContent = 'Explore library documents synced from Google Sheets';
+                renderBooksGrid();
+            } else if (tabId === 'favorites') {
+                document.getElementById('headerTitle').textContent = 'Starred Favorites Vault 💜';
+                document.getElementById('headerSubtitle').textContent = 'Your curated materials list';
+                renderFavoritesGrid();
+            } else if (tabId === 'mcq') {
+                document.getElementById('headerTitle').textContent = 'Progressive MCQ Stages (30s / Question) ✍️';
+                document.getElementById('headerSubtitle').textContent = 'Complete stages sequentially to unlock Stage 1 🎉 ➔ Stage 2 🎉 ➔ Stage 3 🔥 ...';
+                renderStageCards();
+                loadSubjectsAndMcq();
+            } else if (tabId === 'results') {
+                document.getElementById('headerTitle').textContent = 'Student Exam Leaderboard (Local Storage + Sheets) 🏆';
+                document.getElementById('headerSubtitle').textContent = 'Persistent student exam records across all dynamic stages';
+                loadResultsData();
+            }
+        }
+
+        function normalizeBook(item) {
+            const out = { ...item };
+            const map = {};
+            for (const key in item) {
+                map[key.toLowerCase()] = item[key];
+            }
+            out._lc = map;
+            return out;
+        }
+
+        function loadAllData() {
+            playAudioTone('click');
+            const statusIndicator = document.getElementById('syncStatusIndicator');
+            statusIndicator.textContent = "Syncing...";
+            statusIndicator.className = "text-amber-500";
+
+            fetch(API_URL + "?action=getBooks")
+                .then(res => res.json())
+                .then(data => {
+                    libraryBooks = (data || []).map(normalizeBook);
+                    if (libraryBooks.length === 0) {
+                        libraryBooks = getMockBooks();
+                    }
+                    updateDashboardStats();
+                    renderCategoryChart();
+                    renderFavoriteChart();
+                    renderRecentTable();
+                    renderCategoryFilters();
+                    renderBooksGrid();
+                    renderFavoritesGrid();
+                    statusIndicator.textContent = "Auto Live";
+                    statusIndicator.className = "text-emerald-500";
+                })
+                .catch(err => {
+                    console.error("Failed to fetch books:", err);
+                    libraryBooks = getMockBooks();
+                    updateDashboardStats();
+                    renderCategoryChart();
+                    renderFavoriteChart();
+                    renderRecentTable();
+                    renderCategoryFilters();
+                    renderBooksGrid();
+                    renderFavoritesGrid();
+                    statusIndicator.textContent = "Cached";
+                    statusIndicator.className = "text-rose-500";
+                });
+
+            loadSubjectsAndMcq();
+            loadResultsData();
+        }
+
+        function getMockBooks() {
+            return [
+                { id: 1, title: "Advanced Indian Polity & Constitution", author: "M. Laxmikanth", category: "Gujarati Constitution (ભારતનું બંધારણ)", description: "Comprehensive guide covering constitutional structure, fundamental rights, and governance.", image_url: "https://placehold.co/120x160/6366f1/ffffff?text=Polity", pdf_url: "https://drive.google.com", favorite: "Y" },
+                { id: 2, title: "Competitive Mathematics Masterclass", author: "R.S. Aggarwal", category: "Mathematics", description: "In-depth practice problems, quantitative aptitude techniques, and stage preparation tricks.", image_url: "https://placehold.co/120x160/10b981/ffffff?text=Maths", pdf_url: "https://drive.google.com", favorite: "N" },
+                { id: 3, title: "Computer Science & Digital Literacy", author: "P.K. Sinha", category: "Computer Science", description: "Fundamental concepts of computing, networks, database systems, and internet security.", image_url: "https://placehold.co/120x160/3b82f6/ffffff?text=CS", pdf_url: "https://drive.google.com", favorite: "Y" },
+                { id: 4, title: "General Knowledge Digest 2026", author: "Tarun Goyal", category: "General Knowledge", description: "Updated world events, static general knowledge, history, geography, and current affairs.", image_url: "https://placehold.co/120x160/f59e0b/ffffff?text=GK", pdf_url: "https://drive.google.com", favorite: "N" }
+            ].map(normalizeBook);
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('statTotalBooks').textContent = libraryBooks.length;
+            let favs = 0;
+            libraryBooks.forEach(b => {
+                if ((b._lc['favorite'] || '').toString().toUpperCase() === 'Y') favs++;
+            });
+            document.getElementById('statTotalFavorites').textContent = favs;
+        }
+
+        function renderCategoryChart() {
+            const counts = {};
+            libraryBooks.forEach(b => {
+                const cat = (b._lc['category'] || 'Uncategorized').toString().trim();
+                counts[cat] = (counts[cat] || 0) + 1;
+            });
+
+            const labels = Object.keys(counts);
+            const data = Object.values(counts);
+
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            if (categoryChartInstance) categoryChartInstance.destroy();
+
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const textColor = isDark ? '#f8fafc' : '#0f172a';
+
+            categoryChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Books Count',
+                        data: data,
+                        backgroundColor: ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6'],
+                        borderRadius: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: textColor }, grid: { display: false } },
+                        y: { ticks: { color: textColor, precision: 0 }, grid: { color: isDark ? '#334155' : '#e2e8f0' } }
+                    }
+                }
+            });
+        }
+
+        function renderFavoriteChart() {
+            let favs = 0;
+            libraryBooks.forEach(b => {
+                if ((b._lc['favorite'] || '').toString().toUpperCase() === 'Y') favs++;
+            });
+            const nonFavs = Math.max(0, libraryBooks.length - favs);
+
+            const ctx = document.getElementById('favoriteChart').getContext('2d');
+            if (favoriteChartInstance) favoriteChartInstance.destroy();
+
+            favoriteChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Starred Favorites', 'Standard Catalog'],
+                    datasets: [{
+                        data: [favs, nonFavs],
+                        backgroundColor: ['#8b5cf6', '#cbd5e1'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        function updateChartsTheme() {
+            if (categoryChartInstance) renderCategoryChart();
+            if (favoriteChartInstance) renderFavoriteChart();
+        }
+
+        function renderRecentTable() {
+            const tbody = document.getElementById('recentTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const recent = libraryBooks.slice(0, 5);
+            recent.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-[var(--bg)] transition";
+                tr.innerHTML = `
+                    <td class="py-3 px-3 font-semibold">${b._lc['title'] || 'Untitled'}</td>
+                    <td class="py-3 px-3 text-[var(--muted)]">${b._lc['author'] || 'Unknown'}</td>
+                    <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] font-medium text-[10px]">${b._lc['category'] || 'General'}</span></td>
+                    <td class="py-3 px-3 text-right">
+                        <button onclick="openPdfModal('${encodeURIComponent(b._lc['pdf_url'] || '#')}', '${encodeURIComponent(b._lc['title'] || 'Document')}')" class="btn-adv btn-adv-primary px-3 py-1.2 text-[11px]">Read PDF</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderCategoryFilters() {
+            const container = document.getElementById('categoryFilterButtons');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const categories = new Set();
+            libraryBooks.forEach(b => {
+                const c = (b._lc['category'] || '').toString().trim();
+                if (c) categories.add(c);
+            });
+
+            const allBtn = document.createElement('button');
+            allBtn.className = `btn-adv px-3.5 py-1.5 text-xs ${currentCategoryFilter === '' ? 'btn-adv-primary' : 'btn-adv-secondary'}`;
+            allBtn.textContent = 'All Categories';
+            allBtn.onclick = () => { currentCategoryFilter = ''; renderCategoryFilters(); renderBooksGrid(); playAudioTone('click'); };
+            container.appendChild(allBtn);
+
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `btn-adv px-3.5 py-1.5 text-xs ${currentCategoryFilter === cat ? 'btn-adv-primary' : 'btn-adv-secondary'}`;
+                btn.textContent = cat;
+                btn.onclick = () => { currentCategoryFilter = cat; renderCategoryFilters(); renderBooksGrid(); playAudioTone('click'); };
+                container.appendChild(btn);
+            });
+        }
+
+        function renderBooksGrid() {
+            const grid = document.getElementById('booksGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const filtered = libraryBooks.filter(b => {
+                const matchesCat = currentCategoryFilter === '' || (b._lc['category'] || '').toString().trim() === currentCategoryFilter;
+                const matchesQuery = currentSearchQuery === '' ||
+                    (b._lc['title'] || '').toString().toLowerCase().includes(currentSearchQuery) ||
+                    (b._lc['author'] || '').toString().toLowerCase().includes(currentSearchQuery) ||
+                    (b._lc['category'] || '').toString().toLowerCase().includes(currentSearchQuery);
+                return matchesCat && matchesQuery;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-[var(--muted)] text-sm">No books found matching your criteria.</div>`;
+                return;
+            }
+
+            filtered.forEach(b => {
+                const isFav = (b._lc['favorite'] || '').toString().toUpperCase() === 'Y';
+                const card = document.createElement('div');
+                card.className = "custom-card rounded-2xl border p-4 flex flex-col justify-between space-y-4 animate-fade hover:shadow-md transition";
+                card.innerHTML = `
+                    <div class="flex gap-4">
+                        <img src="${b._lc['image_url'] || 'https://placehold.co/120x160/6366f1/ffffff?text=Book'}" alt="Cover" class="w-20 h-28 object-cover rounded-xl border border-[var(--border)] shrink-0 shadow-xs" onerror="this.src='https://placehold.co/120x160/6366f1/ffffff?text=Book'" />
+                        <div class="space-y-1.5 min-w-0 flex-1">
+                            <div class="flex justify-between items-start gap-2">
+                                <span class="px-2 py-0.5 bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] font-semibold rounded-md truncate max-w-[140px]">${b._lc['category'] || 'General'}</span>
+                                <button onclick="toggleFavoriteBook('${b._lc['id']}', '${isFav ? 'N' : 'Y'}')" class="text-base hover:scale-110 transition cursor-pointer" title="Toggle Favorite">
+                                    ${isFav ? '💜' : '🤍'}
+                                </button>
+                            </div>
+                            <h4 class="font-bold text-sm leading-snug line-clamp-2">${b._lc['title'] || 'Untitled'}</h4>
+                            <p class="text-xs text-[var(--muted)] line-clamp-1">By ${b._lc['author'] || 'Unknown'}</p>
+                            <p class="text-[11px] text-[var(--muted)] line-clamp-2 mt-1">${b._lc['description'] || 'No description provided.'}</p>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-[var(--border)] flex justify-between items-center">
+                        <span class="text-[10px] text-[var(--muted)] font-mono">ID: ${b._lc['id'] || '#'}</span>
+                        <button onclick="openPdfModal('${encodeURIComponent(b._lc['pdf_url'] || '#')}', '${encodeURIComponent(b._lc['title'] || 'Document')}')" class="btn-adv btn-adv-primary px-4 py-2 text-xs">
+                            View PDF Document ↗
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderFavoritesGrid() {
+            const grid = document.getElementById('favoritesGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const favs = libraryBooks.filter(b => (b._lc['favorite'] || '').toString().toUpperCase() === 'Y');
+
+            if (favs.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-[var(--muted)] text-sm">No starred favorite books in your vault yet. Click the 🤍 icon on any book to save it here!</div>`;
+                return;
+            }
+
+            favs.forEach(b => {
+                const card = document.createElement('div');
+                card.className = "custom-card rounded-2xl border p-4 flex flex-col justify-between space-y-4 animate-fade hover:shadow-md transition";
+                card.innerHTML = `
+                    <div class="flex gap-4">
+                        <img src="${b._lc['image_url'] || 'https://placehold.co/120x160/6366f1/ffffff?text=Book'}" alt="Cover" class="w-20 h-28 object-cover rounded-xl border border-[var(--border)] shrink-0 shadow-xs" onerror="this.src='https://placehold.co/120x160/6366f1/ffffff?text=Book'" />
+                        <div class="space-y-1.5 min-w-0 flex-1">
+                            <div class="flex justify-between items-start gap-2">
+                                <span class="px-2 py-0.5 bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] font-semibold rounded-md truncate max-w-[140px]">${b._lc['category'] || 'General'}</span>
+                                <button onclick="toggleFavoriteBook('${b._lc['id']}', 'N')" class="text-base hover:scale-110 transition cursor-pointer" title="Remove Favorite">💜</button>
+                            </div>
+                            <h4 class="font-bold text-sm leading-snug line-clamp-2">${b._lc['title'] || 'Untitled'}</h4>
+                            <p class="text-xs text-[var(--muted)] line-clamp-1">By ${b._lc['author'] || 'Unknown'}</p>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-[var(--border)] flex justify-between items-center">
+                        <span class="text-[10px] text-purple-500 font-bold">Starred Favorite</span>
+                        <button onclick="openPdfModal('${encodeURIComponent(b._lc['pdf_url'] || '#')}', '${encodeURIComponent(b._lc['title'] || 'Document')}')" class="btn-adv btn-adv-primary px-4 py-2 text-xs">
+                            View PDF ↗
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleFavoriteBook(bookId, newStatus) {
+            playAudioTone('click');
+            const target = libraryBooks.find(b => (b._lc['id'] || '').toString() === bookId.toString());
+            if (target) {
+                target._lc['favorite'] = newStatus;
+                target['favorite'] = newStatus;
+                updateDashboardStats();
+                renderFavoriteChart();
+                renderBooksGrid();
+                renderFavoritesGrid();
+
+                showToast(newStatus === 'Y' ? "Added to Starred Favorites Vault 💜" : "Removed from Vault", "info");
+
+                fetch(`${API_URL}?action=toggleFavorite&id=${encodeURIComponent(bookId)}&favorite=${newStatus}`)
+                    .catch(e => console.log(e));
+            }
+        }
+
+        function openPdfModal(encodedUrl, encodedTitle) {
+            playAudioTone('click');
+            const rawUrl = decodeURIComponent(encodedUrl);
+            const title = decodeURIComponent(encodedTitle);
+
+            document.getElementById('modalBookTitle').textContent = title;
+            document.getElementById('modalExternalLink').href = rawUrl;
+
+            const wrapper = document.getElementById('pdfViewerWrapper');
+            wrapper.innerHTML = '';
+
+            let embedUrl = rawUrl;
+            if (rawUrl.includes('drive.google.com')) {
+                embedUrl = rawUrl.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
+                if (!embedUrl.includes('/preview')) {
+                    embedUrl += '/preview';
+                }
+            }
+
+            wrapper.innerHTML = `<iframe src="${embedUrl}" class="w-full h-full border-0 rounded-b-xl" allow="autoplay"></iframe>`;
+            document.getElementById('pdfModal').classList.remove('hidden');
+        }
+
+        function closePdfModal() {
+            playAudioTone('click');
+            document.getElementById('pdfModal').classList.add('hidden');
+            document.getElementById('pdfViewerWrapper').innerHTML = '';
+        }
+
+        function loadSubjectsAndMcq() {
+            fetch(API_URL + "?action=getSubjects")
+                .then(res => res.json())
+                .then(data => {
+                    availableSubjects = data || [];
+                    const select = document.getElementById('mcqSubjectSelect');
+                    if (select) {
+                        select.innerHTML = '';
+                        availableSubjects.forEach(s => {
+                            const opt = document.createElement('option');
+                            opt.value = s;
+                            opt.textContent = s;
+                            select.appendChild(opt);
+                        });
+                    }
+                    loadMcqQuestions();
+                })
+                .catch(() => {
+                    availableSubjects = [
+                        "Gujarati Constitution (ભારતનું બંધારણ)",
+                        "General Knowledge",
+                        "Mathematics",
+                        "Computer Science"
+                    ];
+                    const select = document.getElementById('mcqSubjectSelect');
+                    if (select) {
+                        select.innerHTML = '';
+                        availableSubjects.forEach(s => {
+                            const opt = document.createElement('option');
+                            opt.value = s;
+                            opt.textContent = s;
+                            select.appendChild(opt);
+                        });
+                    }
+                    loadMcqQuestions();
+                });
+        }
+
+        function loadMcqQuestions() {
+            const subjSelect = document.getElementById('mcqSubjectSelect');
+            const selectedSubject = subjSelect ? subjSelect.value : '';
+
+            fetch(API_URL + `?action=getMcq&subject=${encodeURIComponent(selectedSubject)}`)
+                .then(res => res.json())
+                .then(data => {
+                    examQuestions = data || [];
+                    if (examQuestions.length === 0) {
+                        examQuestions = getMockQuestions(selectedSubject);
+                    }
+                    document.getElementById('statTotalMcq').textContent = examQuestions.length;
+                    selectedStage = Math.min(getTotalStages(), getHighestUnlockedStage());
+                    renderStageCards();
+                })
+                .catch(() => {
+                    examQuestions = getMockQuestions(selectedSubject);
+                    document.getElementById('statTotalMcq').textContent = examQuestions.length;
+                    selectedStage = Math.min(getTotalStages(), getHighestUnlockedStage());
+                    renderStageCards();
+                });
+        }
+
+        function getMockQuestions(subject) {
+            const list = [];
+            for (let i = 1; i <= 1000; i++) {
+                list.push({
+                    id: i,
+                    subject: subject || "General Exam",
+                    question: `Q${i}: [Stage Question] ${subject || 'Portal'} question item - What is the correct option?`,
+                    optionA: "Option A Statement text",
+                    optionB: "Option B Statement text",
+                    optionC: "Option C Statement text",
+                    optionD: "Option D Statement text",
+                    correctOptionKey: (i % 4 === 1 ? 'optionA' : (i % 4 === 2 ? 'optionB' : (i % 4 === 3 ? 'optionC' : 'optionD'))),
+                    correctOptionLetter: (i % 4 === 1 ? 'A' : (i % 4 === 2 ? 'B' : (i % 4 === 3 ? 'C' : 'D'))),
+                    correctAnswerText: "Correct Option Text"
+                });
+            }
+            return list;
+        }
+
+        function startExamWithTimer() {
+            playAudioTone('click');
+            const studentNameInput = document.getElementById('examStudentName');
+            const studentName = studentNameInput ? studentNameInput.value.trim() : (activeSessionUser || "Student");
+
+            if (!studentName) {
+                showToast("Please complete login authentication first.", "error");
+                return;
+            }
+
+            const highestUnlocked = getHighestUnlockedStage();
+            if (selectedStage > highestUnlocked) {
+                showToast(`🔒 Stage ${selectedStage} is locked! Complete Stage ${selectedStage - 1} first.`, "error");
+                return;
+            }
+
+            const config = getStageConfig(selectedStage);
+            examTimeRemainingSeconds = config.durationSeconds;
+            currentStudentAnswers = {};
+            activeQuestionIndex = 0;
+
+            const subjSelect = document.getElementById('mcqSubjectSelect');
+            const subjText = subjSelect ? subjSelect.value : 'General Exam';
+
+            document.getElementById('lblExamStudent').textContent = studentName;
+            document.getElementById('lblExamStage').textContent = `Stage ${selectedStage} (Q${config.startQ}–${config.endQ} • ${config.questionCount} Qs • 30s/Q)`;
+            document.getElementById('lblExamSubject').textContent = subjText;
+
+            document.getElementById('mcqStudentSetup').classList.add('hidden');
+            document.getElementById('mcqQuestionsArea').classList.remove('hidden');
+            document.getElementById('mcqResultArea').classList.add('hidden');
+
+            if (examTimerInterval) clearInterval(examTimerInterval);
+            updateTimerDisplay();
+
+            examTimerInterval = setInterval(() => {
+                examTimeRemainingSeconds--;
+                updateTimerDisplay();
+                if (examTimeRemainingSeconds <= 0) {
+                    clearInterval(examTimerInterval);
+                    showToast("⏰ Time's up! Submitting stage exam automatically.", "info");
+                    submitExam(false);
+                }
+            }, 1000);
+
+            renderCurrentQuestion();
+        }
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(examTimeRemainingSeconds / 3600);
+            const mins = Math.floor((examTimeRemainingSeconds % 3600) / 60);
+            const secs = examTimeRemainingSeconds % 60;
+            
+            let display = "";
+            if (hours > 0) {
+                display = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            } else {
+                display = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            
+            const el = document.getElementById('examTimerDisplay');
+            if (el) el.textContent = display;
+        }
+
+        function renderCurrentQuestion() {
+            const container = document.getElementById('paginatedQuestionContainer');
+            if (!container) return;
+
+            const config = getStageConfig(selectedStage);
+            const totalStageQuestions = config.questionCount;
+
+            if (activeQuestionIndex >= totalStageQuestions) {
+                activeQuestionIndex = totalStageQuestions - 1;
+            }
+            if (activeQuestionIndex < 0) {
+                activeQuestionIndex = 0;
+            }
+
+            const globalQIndex = (selectedStage - 1) * 100 + activeQuestionIndex;
+            const q = examQuestions[globalQIndex] || examQuestions[activeQuestionIndex];
+            if (!q) {
+                container.innerHTML = `<div class="text-center py-8 text-rose-500 font-semibold">No question available at index ${activeQuestionIndex + 1}.</div>`;
+                return;
+            }
+
+            document.getElementById('currentQuestionIndexDisplay').textContent = activeQuestionIndex + 1;
+            document.getElementById('totalQuestionsCountDisplay').textContent = totalStageQuestions;
+
+            const prevBtn = document.getElementById('prevQuestionBtn');
+            const nextBtn = document.getElementById('nextQuestionBtn');
+
+            if (prevBtn) prevBtn.disabled = (activeQuestionIndex === 0);
+            if (nextBtn) nextBtn.disabled = (activeQuestionIndex >= totalStageQuestions - 1);
+
+            const savedAnswer = currentStudentAnswers[activeQuestionIndex];
+            const isLocked = (savedAnswer !== undefined);
+
+            let correctKey = q.correctOptionKey || 'optionA';
+            if (!correctKey || correctKey === 'unknown') {
+                const raw = (q.answer || '').toString().trim().toUpperCase();
+                if (raw === 'B' || raw === '2' || raw.includes('OPTION B')) correctKey = 'optionB';
+                else if (raw === 'C' || raw === '3' || raw.includes('OPTION C')) correctKey = 'optionC';
+                else if (raw === 'D' || raw === '4' || raw.includes('OPTION D')) correctKey = 'optionD';
+                else correctKey = 'optionA';
+            }
+
+            const options = [
+                { key: 'optionA', letter: 'A', text: q.optionA || 'Option A' },
+                { key: 'optionB', letter: 'B', text: q.optionB || 'Option B' },
+                { key: 'optionC', letter: 'C', text: q.optionC || 'Option C' },
+                { key: 'optionD', letter: 'D', text: q.optionD || 'Option D' }
+            ];
+
+            let optionsHtml = '';
+            options.forEach(opt => {
+                let btnStyle = 'btn-adv btn-adv-secondary border-[var(--border)] text-[var(--text)] hover:border-[var(--primary)]';
+                let icon = '';
+
+                if (isLocked) {
+                    if (opt.key === correctKey) {
+                        btnStyle = 'btn-adv btn-adv-emerald bg-emerald-500/15 text-emerald-600 font-bold border-emerald-500 cursor-not-allowed';
+                        icon = '✓ (Correct Answer)';
+                    } else if (savedAnswer === opt.key && savedAnswer !== correctKey) {
+                        btnStyle = 'btn-adv btn-adv-rose bg-rose-500/15 text-rose-600 font-bold border-rose-500 cursor-not-allowed';
+                        icon = '✕ (Your Choice - Locked)';
+                    } else {
+                        btnStyle = 'btn-adv btn-adv-secondary opacity-60 cursor-not-allowed';
+                    }
+                }
+
+                optionsHtml += `
+                    <button type="button" ${isLocked ? 'disabled' : ''} onclick="selectMcqAnswer(${activeQuestionIndex}, '${opt.key}', '${correctKey}')" class="w-full text-left p-3.5 text-xs flex justify-between items-center gap-3 ${btnStyle}">
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-[var(--border)] flex items-center justify-center font-bold text-[11px] shrink-0">${opt.letter}</span>
+                            <span>${opt.text}</span>
+                        </div>
+                        <span class="text-[11px] font-bold shrink-0">${icon}</span>
+                    </button>
+                `;
+            });
+
+            const displayQNum = config.startQ + activeQuestionIndex;
+
+            container.innerHTML = `
+                <div class="space-y-4 animate-fade">
+                    <div class="flex justify-between items-center gap-2">
+                        <span class="px-2.5 py-1 bg-[var(--primary)]/10 text-[var(--primary)] font-bold text-[11px] rounded-lg">Stage ${selectedStage} • Question ${activeQuestionIndex + 1} of ${totalStageQuestions} (Q#${displayQNum})</span>
+                        <div class="flex items-center gap-2">
+                            ${isLocked ? '<span class="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-600 font-bold text-[11px]">🔒 Answer Locked</span>' : '<span class="text-[11px] font-semibold text-amber-500">⏱️ 30s allocated / Q</span>'}
+                        </div>
+                    </div>
+                    <p class="font-bold text-sm leading-relaxed text-[var(--text)]">${q.question || `Q${displayQNum}: Examination question content`}</p>
+                    <div class="space-y-2.5 pt-2">
+                        ${optionsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectMcqAnswer(qIndex, selectedKey, correctKey) {
+            if (currentStudentAnswers[qIndex] !== undefined) {
+                return;
+            }
+
+            currentStudentAnswers[qIndex] = selectedKey;
+
+            if (selectedKey === correctKey) {
+                playAudioTone('correct');
+            } else {
+                playAudioTone('incorrect');
+            }
+
+            renderCurrentQuestion();
+        }
+
+        function navigateQuestion(direction) {
+            playAudioTone('click');
+            activeQuestionIndex += direction;
+            renderCurrentQuestion();
+        }
+
+        function submitExam(isManual) {
+            if (isManual) {
+                playAudioTone('click');
+                showCustomConfirm("Submit Exam", `Are you sure you want to submit Stage ${selectedStage} exam now?`, () => {
+                    processExamSubmission();
+                });
+            } else {
+                processExamSubmission();
+            }
+        }
+
+        function processExamSubmission() {
+            if (examTimerInterval) clearInterval(examTimerInterval);
+
+            const config = getStageConfig(selectedStage);
+            const totalStageQuestions = config.questionCount;
+            let score = 0;
+
+            for (let i = 0; i < totalStageQuestions; i++) {
+                const globalQIndex = (selectedStage - 1) * 100 + i;
+                const q = examQuestions[globalQIndex] || examQuestions[i];
+                if (!q) continue;
+
+                let correctKey = q.correctOptionKey || 'optionA';
+                if (!correctKey || correctKey === 'unknown') {
+                    const raw = (q.answer || '').toString().trim().toUpperCase();
+                    if (raw === 'B' || raw === '2' || raw.includes('OPTION B')) correctKey = 'optionB';
+                    else if (raw === 'C' || raw === '3' || raw.includes('OPTION C')) correctKey = 'optionC';
+                    else if (raw === 'D' || raw === '4' || raw.includes('OPTION D')) correctKey = 'optionD';
+                    else correctKey = 'optionA';
+                }
+
+                if (currentStudentAnswers[i] === correctKey) {
+                    score++;
+                }
+            }
+
+            markStageCompleted(selectedStage);
+
+            const studentName = document.getElementById('lblExamStudent').textContent || activeSessionUser || "Student";
+            const subjSelect = document.getElementById('mcqSubjectSelect');
+            const subject = `Stage ${selectedStage} (Q${config.startQ}–${config.endQ} • 30s/Q) - ${subjSelect ? subjSelect.value : 'General Exam'}`;
+            const timestamp = new Date().toLocaleString();
+
+            const newResult = { timestamp, student: studentName, subject, score, total: totalStageQuestions };
+            examResults.unshift(newResult);
+            localStorage.setItem('jgv_local_results', JSON.stringify(examResults));
+
+            fetch(`${API_URL}?action=saveResult&student=${encodeURIComponent(studentName)}&subject=${encodeURIComponent(subject)}&score=${score}&total=${totalStageQuestions}`).catch(e => console.log(e));
+
+            const totalStages = getTotalStages();
+            const nextStageNum = selectedStage + 1;
+            document.getElementById('mcqQuestionsArea').classList.add('hidden');
+            document.getElementById('mcqResultArea').classList.remove('hidden');
+
+            document.getElementById('resultEmojiHeader').textContent = (selectedStage === 1 ? '🎉' : (selectedStage === 2 ? '🎉' : '🔥'));
+            document.getElementById('resultTitleHeader').textContent = `Stage ${selectedStage} Finished 🎉!`;
+            
+            document.getElementById('examScoreSummary').textContent = `Congratulations ${studentName}! You scored ${score} out of ${totalStageQuestions} marks in Stage ${selectedStage} (Questions ${config.startQ} to ${config.endQ}). Your result is saved to Local Storage and Google Sheets.`;
+
+            if (nextStageNum <= totalStages) {
+                const nextConf = getStageConfig(nextStageNum);
+                document.getElementById('unlockedNextStageBadge').textContent = `Stage ${nextStageNum} Unlocked 🔥`;
+                document.getElementById('unlockedNextStageDesc').textContent = `Stage ${selectedStage} is now marked as finished 🎉. You have unlocked Stage ${nextStageNum} (Questions ${nextConf.startQ}–${nextConf.endQ}, ${nextConf.durationMins} Minutes)!`;
+            } else {
+                document.getElementById('unlockedNextStageBadge').textContent = `🏆 All ${totalStages} Dynamic Stages Mastered!`;
+                document.getElementById('unlockedNextStageDesc').textContent = `Incredible achievement! You have completed all available examination stages in the portal!`;
+            }
+
+            if (nextStageNum <= totalStages) {
+                selectedStage = nextStageNum;
+            }
+
+            renderStageCards();
+            loadResultsData();
+            showToast(`Stage ${selectedStage - 1} completed with score: ${score}/${totalStageQuestions}`, "success");
+        }
+
+        function resetExamForm() {
+            playAudioTone('click');
+            document.getElementById('mcqStudentSetup').classList.remove('hidden');
+            document.getElementById('mcqQuestionsArea').classList.add('hidden');
+            document.getElementById('mcqResultArea').classList.add('hidden');
+            renderStageCards();
+        }
+
+        function loadResultsData() {
+            const tbody = document.getElementById('resultsTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            fetch(API_URL + "?action=getResults")
+                .then(res => res.json())
+                .then(data => {
+                    const remoteResults = data || [];
+                    const combined = [...examResults, ...remoteResults];
+                    renderResultsTable(combined);
+                })
+                .catch(() => {
+                    renderResultsTable(examResults);
+                });
+        }
+
+        function renderResultsTable(results) {
+            const tbody = document.getElementById('resultsTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (!results || results.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-[var(--muted)]">No exam attempt results logged yet.</td></tr>`;
+                return;
+            }
+
+            document.getElementById('statTotalResults').textContent = results.length;
+
+            results.slice(0, 25).forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-[var(--bg)] transition";
+                tr.innerHTML = `
+                    <td class="py-3 px-3 text-[var(--muted)]">${r.timestamp || 'N/A'}</td>
+                    <td class="py-3 px-3 font-bold">${r.student || 'Student'}</td>
+                    <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] font-medium text-[10px]">${r.subject || 'Exam'}</span></td>
+                    <td class="py-3 px-3 font-bold text-emerald-500">${r.score}</td>
+                    <td class="py-3 px-3 font-semibold">${r.total}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function handleSearch(query) {
+            currentSearchQuery = (query || '').toString().toLowerCase().trim();
+            renderBooksGrid();
+        }
+    </script>
+</body>
+</html>
